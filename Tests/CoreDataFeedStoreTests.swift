@@ -11,35 +11,16 @@ import XCTest
 @testable import FeedStoreChallenge
 
 class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
-	override func setUp() {
-		super.setUp()
+	override func setUpWithError() throws {
+		try super.setUpWithError()
 		
-		dataCleanup()
+		try setupEmptyStoreState()
 	}
 	
-	private func dataCleanup() {
-		let managedContext = CoreDataStack.sharedInstance.managedContext
-		if let managedContext = managedContext {
-			let cacheRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cache")
-			let feedsRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Feed")
-
-			let batchDeleteCacheRequest = NSBatchDeleteRequest(fetchRequest: cacheRequest)
-			let batchDeleteFeedsRequest = NSBatchDeleteRequest(fetchRequest: feedsRequest)
-			do {
-				try managedContext.execute(batchDeleteCacheRequest)
-				try managedContext.execute(batchDeleteFeedsRequest)
-				
-				try managedContext.save()
-			} catch {
-				print(error)
-			}
-		}
-	}
-	
-	override func tearDown() {
-		super.tearDown()
+	override func tearDownWithError() throws {
+		try undoStoreSideEffects()
 		
-		dataCleanup()
+		try super.tearDownWithError()
 	}
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
@@ -115,5 +96,34 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	
 	private func makeSUT() -> CoreDataFeedStore {
 		return CoreDataFeedStore()
+	}
+	
+	private func setupEmptyStoreState() throws {
+		dataCleanup()
+	}
+	
+	private func undoStoreSideEffects() throws {
+		dataCleanup()
+	}
+}
+
+extension XCTestCase {
+	func dataCleanup() {
+		let managedContext = CoreDataStack.sharedInstance.managedContext
+		if let managedContext = managedContext {
+			let cacheRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cache")
+			let feedsRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Feed")
+
+			let batchDeleteCacheRequest = NSBatchDeleteRequest(fetchRequest: cacheRequest)
+			let batchDeleteFeedsRequest = NSBatchDeleteRequest(fetchRequest: feedsRequest)
+			do {
+				try managedContext.execute(batchDeleteCacheRequest)
+				try managedContext.execute(batchDeleteFeedsRequest)
+				
+				try managedContext.save()
+			} catch {
+				print(error)
+			}
+		}
 	}
 }
