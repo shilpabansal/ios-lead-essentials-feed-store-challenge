@@ -124,7 +124,8 @@ class CoreDataFeedStore: FeedStore {
 			feedRequest.sortDescriptors = [sort]
 			
 			do {
-				if let cache = try managedContext.fetch(cacheRequest).first as? Cache,
+				let cacheData = try managedContext.fetch(cacheRequest) as? [Cache]
+				if cacheData?.isEmpty == false, let cache = cacheData?.first,
 				   let feeds = try managedContext.fetch(feedRequest) as? [Feed],
 				   let timestamp = cache.timeStamp {
 					let imageFeeds = feeds.compactMap({
