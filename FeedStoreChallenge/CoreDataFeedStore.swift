@@ -26,10 +26,8 @@ public class CoreDataStack {
 		}
 		container?.loadPersistentStores(completionHandler: { (storeDescription, error) in
 			if let error = error {
-				print("Error:\(error)")
 				return
 			}
-			print(storeDescription)
 		})
 		return container
 	}()

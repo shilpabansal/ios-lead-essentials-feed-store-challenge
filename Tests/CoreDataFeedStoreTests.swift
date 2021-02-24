@@ -122,7 +122,6 @@ extension XCTestCase {
 				
 				try managedContext.save()
 			} catch {
-				print(error)
 			}
 		}
 	}
