@@ -12,5 +12,10 @@ import CoreData
 
 @objc(Cache)
 public class Cache: NSManagedObject {
-
+	init(timestamp: Date, feedObjects: [NSManagedObject], managedContext: NSManagedObjectContext, entityDescription: NSEntityDescription) {
+		super.init(entity: entityDescription, insertInto: managedContext)
+		
+		self.setValue(timestamp, forKey: "timeStamp")
+		self.setValue(Set(feedObjects), forKey: "feedsEntered")
+	}
 }

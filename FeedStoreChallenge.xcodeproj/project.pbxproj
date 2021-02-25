@@ -90,7 +90,6 @@
 				332FB08425E6961100B8351D /* Feed+CoreDataProperties.swift */,
 				332FB08525E6961100B8351D /* Cache+CoreDataClass.swift */,
 				332FB08625E6961100B8351D /* Cache+CoreDataProperties.swift */,
-				332FB07425E68FD000B8351D /* DataModel */,
 				08CE2B8D2285BBD100183A1B /* FeedStoreChallenge */,
 				08CE2B982285BBD100183A1B /* Tests */,
 				08CE2B8C2285BBD100183A1B /* Products */,
@@ -143,13 +142,6 @@
 				084BB13D24FE56830091C705 /* XCTestCase+FeedStoreHelpers.swift */,
 			);
 			path = FeedStoreSpecs;
-			sourceTree = "<group>";
-		};
-		332FB07425E68FD000B8351D /* DataModel */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = DataModel;
 			sourceTree = "<group>";
 		};
 		334033A125E4B22900E2C01D /* Frameworks */ = {

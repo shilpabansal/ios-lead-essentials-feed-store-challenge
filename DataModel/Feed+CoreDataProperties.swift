@@ -10,9 +10,7 @@
 import Foundation
 import CoreData
 
-
 extension Feed {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Feed> {
         return NSFetchRequest<Feed>(entityName: "Feed")
     }
@@ -27,4 +25,11 @@ extension Feed {
 
 extension Feed : Identifiable {
 
+}
+
+extension Feed {
+	var feedImage: LocalFeedImage? {
+		guard let id = feed_id, let url = feed_url else { return nil }
+		return LocalFeedImage(id: id, description: feed_description, location: feed_location, url: url)
+	}
 }
