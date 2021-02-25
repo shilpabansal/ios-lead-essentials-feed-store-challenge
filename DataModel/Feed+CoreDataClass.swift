@@ -12,7 +12,7 @@ import CoreData
 
 @objc(Feed)
 public class Feed: NSManagedObject {
-	init(feedImage: LocalFeedImage, managedContext: NSManagedObjectContext,  index: Int, entityDescription: NSEntityDescription) {
+	init(feedImage: LocalFeedImage, index: Int, managedContext: NSManagedObjectContext, entityDescription: NSEntityDescription) {
 		super.init(entity: entityDescription, insertInto: managedContext)
 		
 		self.setValue(index, forKey: "index")

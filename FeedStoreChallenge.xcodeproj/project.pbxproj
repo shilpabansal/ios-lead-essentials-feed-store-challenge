@@ -26,6 +26,7 @@
 		334033A325E4B22900E2C01D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 334033A225E4B22900E2C01D /* CoreData.framework */; };
 		334033AA25E4B5CF00E2C01D /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334033A925E4B5CF00E2C01D /* CoreDataFeedStore.swift */; };
 		334033B025E4B60700E2C01D /* CoreDataFeedStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334033AF25E4B60700E2C01D /* CoreDataFeedStoreTests.swift */; };
+		33D2B9CB25E7E6A900A1735F /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33D2B9CA25E7E6A900A1735F /* CoreDataStack.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		334033A925E4B5CF00E2C01D /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
 		334033AF25E4B60700E2C01D /* CoreDataFeedStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStoreTests.swift; sourceTree = "<group>"; };
 		33536DAE25E4F787005B6CBC /* FeedStoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FeedStoreDataModel.xcdatamodel; sourceTree = "<group>"; };
+		33D2B9CA25E7E6A900A1735F /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +117,7 @@
 				08CE2B8F2285BBD100183A1B /* Info.plist */,
 				334033A925E4B5CF00E2C01D /* CoreDataFeedStore.swift */,
 				33536DAD25E4F787005B6CBC /* FeedStoreDataModel.xcdatamodeld */,
+				33D2B9CA25E7E6A900A1735F /* CoreDataStack.swift */,
 			);
 			path = FeedStoreChallenge;
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 				332FB08925E6961100B8351D /* Cache+CoreDataClass.swift in Sources */,
 				332FB08A25E6961100B8351D /* Cache+CoreDataProperties.swift in Sources */,
 				08CE2BA82285BCC600183A1B /* LocalFeedImage.swift in Sources */,
+				33D2B9CB25E7E6A900A1735F /* CoreDataStack.swift in Sources */,
 				334033AA25E4B5CF00E2C01D /* CoreDataFeedStore.swift in Sources */,
 				332FB08725E6961100B8351D /* Feed+CoreDataClass.swift in Sources */,
 			);

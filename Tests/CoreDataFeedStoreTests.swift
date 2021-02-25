@@ -109,20 +109,19 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 
 extension XCTestCase {
 	func dataCleanup() {
-		let managedContext = CoreDataStack.sharedInstance.managedContext
-		if let managedContext = managedContext {
-			let cacheRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cache")
-			let feedsRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Feed")
-
-			let batchDeleteCacheRequest = NSBatchDeleteRequest(fetchRequest: cacheRequest)
-			let batchDeleteFeedsRequest = NSBatchDeleteRequest(fetchRequest: feedsRequest)
-			do {
-				try managedContext.execute(batchDeleteCacheRequest)
-				try managedContext.execute(batchDeleteFeedsRequest)
-				
-				try managedContext.save()
-			} catch {
+		
+		let modelName = "FeedStoreDataModel"
+		let bundle = Bundle(identifier: "com.essentialdeveloper.FeedStoreChallenge")
+		
+		do {
+			if let bundleURL = bundle?.url(forResource: modelName, withExtension: "momd") {
+				let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: modelName)
+				try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
+				try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)
 			}
+		}
+		catch {
+			fatalError("Unable to delete the data")
 		}
 	}
 }
