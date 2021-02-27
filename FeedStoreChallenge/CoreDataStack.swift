@@ -46,8 +46,21 @@ public class CoreDataStack {
 			if let items = try context?.fetch(cacheRequest) as? [NSManagedObject] {
 				items.forEach({ context?.delete($0) })
 			}
+			
+			try context?.save()
 		} catch let error as NSError {
 			throw error
+		}
+	}
+	
+	func saveContext() throws {
+		let context = persistentContainer?.viewContext
+		if context?.hasChanges == true {
+			do {
+				try context?.save()
+			} catch {
+				throw error
+			}
 		}
 	}
 	

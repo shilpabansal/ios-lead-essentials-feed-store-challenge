@@ -82,4 +82,18 @@ class FeedStoreIntegrationTests: XCTestCase {
 	private func undoStoreSideEffects() throws {
 		dataCleanup()
 	}
+	
+	func dataCleanup() {
+		do {
+			if let sut = try makeSUT() as? CoreDataFeedStore,
+			   let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: sut.modelName, withExtension: "momd") {
+					let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: sut.modelName)
+					try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
+					try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)
+			}
+		}
+		catch {
+			XCTFail("Unable to delete the data")
+		}
+	}
 }

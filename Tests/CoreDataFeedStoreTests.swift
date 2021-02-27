@@ -105,19 +105,16 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	private func undoStoreSideEffects() throws {
 		dataCleanup()
 	}
-}
-
-extension XCTestCase {
+	
 	func dataCleanup() {
-		
-		let modelName = "FeedStoreDataModel"
-		let bundle = Bundle(identifier: "com.essentialdeveloper.FeedStoreChallenge")
-		
 		do {
-			if let bundleURL = bundle?.url(forResource: modelName, withExtension: "momd") {
+			let sut = makeSUT()
+			let modelName = sut.modelName
+			if let bundleURL = Bundle(for: type(of: sut).self).url(forResource: modelName, withExtension: "momd") {
 				let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: modelName)
 				try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
 				try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)
+				
 			}
 		}
 		catch {

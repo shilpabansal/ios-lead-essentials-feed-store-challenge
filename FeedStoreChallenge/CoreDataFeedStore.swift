@@ -15,20 +15,21 @@ enum FeedsEntity: String {
 }
 
 class CoreDataFeedStore: FeedStore {
-	public var coreDataInstance: CoreDataStack?
+	public var coreDataStack: CoreDataStack?
+	public let modelName = "FeedStoreDataModel"
 	
 	init() {
-		let modelName = "FeedStoreDataModel"
-		let bundle = Bundle(identifier: "com.essentialdeveloper.FeedStoreChallenge")
-		
-		if let bundleURL = bundle?.url(forResource: modelName, withExtension: "momd") {
-			coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: modelName)
+		if let bundleURL = Bundle(for: Self.self).url(forResource: modelName, withExtension: "momd") {
+			coreDataStack = CoreDataStack(storeURL: bundleURL, modelName: modelName)
+		}
+		else {
+			fatalError("Failed to fetch the Datamodel")
 		}
 	}
-		
+	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		do {
-			try coreDataInstance?.deleteItems(entityName: FeedsEntity.Cache.rawValue)
+			try coreDataStack?.deleteItems(entityName: FeedsEntity.Cache.rawValue)
 			completion(nil)
 		} catch let error as NSError {
 			completion(error)
@@ -36,27 +37,32 @@ class CoreDataFeedStore: FeedStore {
 	}
 	
 	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		guard let managedContext = coreDataInstance?.managedContext else { return }
+		guard let managedContext = coreDataStack?.managedContext else { return }
 		
 		do {
-			try coreDataInstance?.deleteItems(entityName: FeedsEntity.Cache.rawValue)
+			try coreDataStack?.deleteItems(entityName: FeedsEntity.Cache.rawValue)
 			
-			if let cacheEntity = coreDataInstance?.entityDescription(entityName: FeedsEntity.Cache.rawValue),
-			   let feedEntity = coreDataInstance?.entityDescription(entityName: FeedsEntity.Feed.rawValue) {
-				let feedManagedObjectArray = feed.enumerated().map { (index, feedImage) -> NSManagedObject in
-					Feed(feedImage: feedImage,
-						 index: index,
-						 managedContext: managedContext,
-						 entityDescription: feedEntity)
-				}
-				_ = Cache(timestamp: timestamp,
-						  feedObjects: feedManagedObjectArray,
-						  managedContext: managedContext,
-						  entityDescription: cacheEntity)
+			let cacheObject = NSEntityDescription.insertNewObject(forEntityName: "Cache", into: managedContext)
+			cacheObject.setValue(timestamp, forKey: "timeStamp")
+
+			let feedManagedObjectArray = feed.enumerated().map { (index, feedImage) -> NSManagedObject in
+				let feedObject = NSEntityDescription.insertNewObject(forEntityName: "Feed", into: managedContext)
+
+				feedObject.setValue(index, forKey: "index")
+				feedObject.setValue(feedImage.id, forKey: "feed_id")
+				feedObject.setValue(feedImage.location, forKey: "feed_location")
+				feedObject.setValue(feedImage.description, forKey: "feed_description")
+				feedObject.setValue(feedImage.url, forKey: "feed_url")
+
+				feedObject.setValue(cacheObject, forKey: "timeStamp")
+				return feedObject
 			}
-			completion(nil)
 			
-		} catch let error as NSError {
+			cacheObject.setValue(NSSet(array: feedManagedObjectArray), forKey: "feedsEntered")
+			
+			try coreDataStack?.saveContext()
+			completion(nil)
+		} catch {
 			completion(error)
 		}
 	}
@@ -65,10 +71,10 @@ class CoreDataFeedStore: FeedStore {
 		do {
 			let sortDescriptor = [NSSortDescriptor(key: "index", ascending: true)]
 			
-			if let cacheData = try coreDataInstance?.fetchRequest(entityName: FeedsEntity.Cache.rawValue) as? [Cache],
+			if let cacheData = try coreDataStack?.fetchRequest(entityName: FeedsEntity.Cache.rawValue) as? [Cache],
 			   let cache = cacheData.first,
 			   let timestamp = cache.timeStamp,
-			   let fetchedFeeds = try coreDataInstance?.fetchRequest(entityName: FeedsEntity.Feed.rawValue, sortDescription: sortDescriptor) as? [Feed] {
+			   let fetchedFeeds = try coreDataStack?.fetchRequest(entityName: FeedsEntity.Feed.rawValue, sortDescription: sortDescriptor) as? [Feed] {
 				let imageFeeds = fetchedFeeds.compactMap({
 					return $0.feedImage
 				})
