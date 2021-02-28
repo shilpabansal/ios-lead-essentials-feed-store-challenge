@@ -43,7 +43,7 @@ extension ManagedCache {
 }
 
 extension ManagedCache : Identifiable {
-	static func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
+	public static func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
 		let request = NSFetchRequest<ManagedCache>(entityName: entityName())
 		return try context.fetch(request).first
 	}

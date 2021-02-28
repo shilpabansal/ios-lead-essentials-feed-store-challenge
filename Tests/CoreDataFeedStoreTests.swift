@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-@testable import FeedStoreChallenge
+import FeedStoreChallenge
 
 class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	override func setUpWithError() throws {
