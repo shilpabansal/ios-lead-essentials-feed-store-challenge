@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-import FeedStoreChallenge
+@testable import FeedStoreChallenge
 
 class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	override func setUpWithError() throws {
@@ -96,7 +96,11 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	
 	private func makeSUT() throws -> CoreDataFeedStore {
 		do {
-			let sut = try CoreDataFeedStore()
+			guard let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
+				throw NSError(domain: "Bundle URL is nil", code: 0, userInfo: nil)
+			}
+			let sut = try CoreDataFeedStore(bundleURL: bundleURL)
+			trackMemoryLeak(sut)
 			return sut
 		}
 		catch {
@@ -113,14 +117,25 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func dataCleanup() {
-		do {
-			let sut = try makeSUT()
-			sut.deleteCachedFeed(completion: {deletionError in
-				XCTAssertNil(deletionError, "Feeds are deleted successfully")
-			})
-		}
-		catch {
-			XCTFail("Unable to delete the data")
+		let url = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd")
+		
+		if let managedObjectModel = url.map({NSManagedObjectModel(contentsOf: $0)}) as? NSManagedObjectModel {
+			let persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: managedObjectModel)
+			
+			let exp = expectation(description: "Wait for loading")
+			persistentContainer.loadPersistentStores {desc, error  in
+				let context = persistentContainer.newBackgroundContext()
+				context.perform {
+					do {
+						try ManagedCache.find(in: context).map(context.delete).map(context.save)
+					}
+					catch {
+						XCTFail("Unable to delete the data")
+					}
+					exp.fulfill()
+				}
+			}
+			wait(for: [exp], timeout: 1.0)
 		}
 	}
 }

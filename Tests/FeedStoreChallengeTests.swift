@@ -95,7 +95,11 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> CoreDataFeedStore {
 		do {
-			let sut = try CoreDataFeedStore()
+			guard let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
+				throw NSError(domain: "Bundle URL is nil", code: 0, userInfo: nil)
+			}
+			let sut = try CoreDataFeedStore(bundleURL: bundleURL)
+			trackMemoryLeak(sut)
 			return sut
 		}
 		catch {

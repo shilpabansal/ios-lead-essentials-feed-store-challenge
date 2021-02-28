@@ -19,18 +19,15 @@ public class CoreDataFeedStore: FeedStore {
 	let managedContext: NSManagedObjectContext
 	public static let modelName = "FeedStoreDataModel"
 	
-	public init() throws {
-		guard let bundleURL = Bundle(for: Self.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd"),
-			  let managedObjectModel =  NSManagedObjectModel(contentsOf: bundleURL) else {
+	public init(bundleURL: URL? = nil) throws {		
+		guard let managedObjectModel = bundleURL.map({NSManagedObjectModel(contentsOf: $0)}) as? NSManagedObjectModel else {
 			throw NSError(domain: "Couldnt find the model", code: 0)
 		}
 		
 		persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: managedObjectModel)
 		
 		var loadError: Error?
-		persistentContainer.loadPersistentStores(completionHandler: {(storeDescription, error) in
-			loadError = error
-		})
+		persistentContainer.loadPersistentStores{ loadError = $1 }
 		
 		if let loadError = loadError {
 			throw loadError
