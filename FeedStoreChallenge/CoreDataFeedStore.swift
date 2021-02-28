@@ -19,8 +19,8 @@ public class CoreDataFeedStore: FeedStore {
 	let managedContext: NSManagedObjectContext
 	public static let modelName = "FeedStoreDataModel"
 	
-	public init(bundleURL: URL? = nil) throws {		
-		guard let managedObjectModel = bundleURL.map({NSManagedObjectModel(contentsOf: $0)}) as? NSManagedObjectModel else {
+	public init(bundleURL: URL) throws {
+		guard let managedObjectModel = NSManagedObjectModel(contentsOf: bundleURL) else {
 			throw NSError(domain: "Couldnt find the model", code: 0)
 		}
 		

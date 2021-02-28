@@ -99,6 +99,7 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 			guard let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
 				throw NSError(domain: "Bundle URL is nil", code: 0, userInfo: nil)
 			}
+//			let storeURL = URL(fileURLWithPath: "/dev/null")
 			let sut = try CoreDataFeedStore(bundleURL: bundleURL)
 			trackMemoryLeak(sut)
 			return sut
