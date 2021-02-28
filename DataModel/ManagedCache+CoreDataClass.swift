@@ -1,5 +1,5 @@
 //
-//  Feed+CoreDataClass.swift
+//  ManagedCache+CoreDataClass.swift
 //  FeedStoreChallenge
 //
 //  Created by Shilpa Bansal on 24/02/21.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(Feed)
-public class Feed: NSManagedObject {
+@objc(ManagedCache)
+class ManagedCache: NSManagedObject {
 
 }

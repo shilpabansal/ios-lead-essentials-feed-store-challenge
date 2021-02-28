@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="19H524" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="FeedStoreDataModel">
-    <entity name="Cache" representedClassName="Cache" syncable="YES">
+    <entity name="ManagedCache" representedClassName="ManagedCache" syncable="YES">
         <attribute name="timeStamp" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="feedsEntered" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Feed" inverseName="cache" inverseEntity="Feed"/>
+        <relationship name="feedsEntered" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="ManagedFeedImage" inverseName="cache" inverseEntity="ManagedFeedImage"/>
     </entity>
-    <entity name="Feed" representedClassName="Feed" syncable="YES" codeGenerationType="class">
-        <attribute name="feed_description" attributeType="String"/>
-        <attribute name="feed_id" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="feed_location" attributeType="String"/>
-        <attribute name="feed_url" attributeType="URI"/>
-        <relationship name="cache" maxCount="1" deletionRule="No Action" destinationEntity="Cache" inverseName="feedsEntered" inverseEntity="Cache"/>
+    <entity name="ManagedFeedImage" representedClassName="ManagedFeedImage" syncable="YES" codeGenerationType="class">
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageDescription" optional="YES" attributeType="String"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="url" attributeType="URI"/>
+        <relationship name="cache" maxCount="1" deletionRule="No Action" destinationEntity="ManagedCache" inverseName="feedsEntered" inverseEntity="ManagedCache"/>
     </entity>
     <elements>
-        <element name="Cache" positionX="-63" positionY="9" width="128" height="73"/>
-        <element name="Feed" positionX="204.4453125" positionY="-18" width="128" height="118"/>
+        <element name="ManagedCache" positionX="-63" positionY="9" width="128" height="73"/>
+        <element name="ManagedFeedImage" positionX="204.4453125" positionY="-18" width="128" height="118"/>
     </elements>
 </model>

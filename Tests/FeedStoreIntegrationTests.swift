@@ -71,11 +71,14 @@ class FeedStoreIntegrationTests: XCTestCase {
 	
 	// - MARK: Helpers
 	
-	private func makeSUT() throws -> FeedStore {
-		guard let sut = CoreDataFeedStore() else {
+	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> FeedStore {
+		do {
+			let sut = try CoreDataFeedStore()
+			return sut
+		}
+		catch {
 			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
 		}
-		return sut
 	}
 	
 	private func setupEmptyStoreState() throws {

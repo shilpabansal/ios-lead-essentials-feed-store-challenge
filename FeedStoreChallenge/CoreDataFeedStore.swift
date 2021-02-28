@@ -10,78 +10,91 @@ import Foundation
 import CoreData
 
 public enum FeedsEntity: String {
-	case Feed
-	case Cache
+	case ManagedFeedImage
+	case ManagedCache
 }
 
 public class CoreDataFeedStore: FeedStore {
-	let coreDataStack: CoreDataStack
+	let persistentContainer: NSPersistentContainer
+	let managedContext: NSManagedObjectContext
 	public static let modelName = "FeedStoreDataModel"
 	
-	public init?() {
-		guard let bundleURL = Bundle(for: Self.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
-			return nil
+	public init() throws {
+		guard let bundleURL = Bundle(for: Self.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd"),
+			  let managedObjectModel =  NSManagedObjectModel(contentsOf: bundleURL) else {
+			throw NSError(domain: "Couldnt find the model", code: 0)
 		}
 		
-		coreDataStack = CoreDataStack(storeURL: bundleURL, modelName: CoreDataFeedStore.modelName)
+		persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: managedObjectModel)
+		
+		var loadError: Error?
+		persistentContainer.loadPersistentStores(completionHandler: {(storeDescription, error) in
+			loadError = error
+		})
+		
+		if let loadError = loadError {
+			throw loadError
+		}
+		managedContext = persistentContainer.newBackgroundContext()
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		do {
-			try coreDataStack.deleteItems(entityName: FeedsEntity.Cache.rawValue)
-			try coreDataStack.deleteItems(entityName: FeedsEntity.Feed.rawValue)
-			
-			completion(nil)
-		} catch let error as NSError {
-			completion(error)
+		perform {[weak managedContext] _ in
+			guard let managedContext = managedContext else {
+				completion(NSError(domain: "Instance not found", code: 0))
+				return
+			}
+			do {
+				try ManagedCache.find(in: managedContext).map(managedContext.delete).map(managedContext.save)
+				completion(nil)
+			}
+			catch {
+				completion(error)
+			}
 		}
 	}
 	
+	private func perform(_ action: @escaping (NSManagedObjectContext) -> Void) {
+		let managedContext = self.managedContext
+		managedContext.perform { action(managedContext) }
+	}
+	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		guard let managedContext = coreDataStack.managedContext,
-			  let cacheEntity = coreDataStack.entityDescription(entityName: FeedsEntity.Cache.rawValue),
-			let feedEntity = coreDataStack.entityDescription(entityName: FeedsEntity.Feed.rawValue) else { return }
-		
-		do {
-			try coreDataStack.deleteItems(entityName: FeedsEntity.Cache.rawValue)
-			
-			let cacheObject = Cache(entity: cacheEntity, insertInto: managedContext)
-			cacheObject.timeStamp = timestamp
-
-			try feed.forEach { feedImage in
-				let feedObject = Feed(entity: feedEntity, insertInto: managedContext)
-				feedObject.cache = cacheObject
-				feedObject.feed_id = feedImage.id
-				feedObject.feed_location = feedImage.location
-				feedObject.feed_description = feedImage.description
-				feedObject.feed_url = feedImage.url
-				
-				cacheObject.addToFeedsEntered(feedObject)
-				
-				try coreDataStack.saveContext()
+		perform {[weak managedContext] _ in
+			guard let managedContext = managedContext else {
+				completion(NSError(domain: "Instance not found", code: 0))
+				return
 			}
-			
-			completion(nil)
-		} catch {
-			completion(error)
+			do {
+				let managedCache = try ManagedCache.uniqueNewInstance(in: managedContext, timestamp: timestamp)
+				managedCache.feedsEntered = ManagedFeedImage.feedImages(from: feed, in: managedContext)
+
+				try managedContext.save()
+				completion(nil)
+			} catch {
+				completion(error)
+			}
 		}
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		do {
-			if let cacheData = try coreDataStack.fetchRequest(entityName: FeedsEntity.Cache.rawValue) as? [Cache],
-			   let cacheObject = cacheData.first,
-			   let fetchedFeeds = try coreDataStack.fetchRequest(entityName: FeedsEntity.Feed.rawValue) as? [Feed] {
-				let imageFeeds = fetchedFeeds.compactMap({
-					return $0.feedImage
-				})
-				completion(.found(feed: imageFeeds, timestamp: cacheObject.timeStamp))
+		perform {[weak managedContext] _ in
+			guard let managedContext = managedContext else {
+				completion(.failure(NSError(domain: "Instance not found", code: 0)))
+				return
 			}
-			else {
-				completion(.empty)
+			do {
+				if let cache = try ManagedCache.find(in: managedContext) {
+					let feedArray = cache.feedsEntered.compactMap { ($0 as? ManagedFeedImage)?.feedImage }
+					completion(.found(feed: feedArray, timestamp: cache.timeStamp))
+				}
+				else {
+					completion(.empty)
+				}
+				
+			} catch {
+				completion(.failure(error))
 			}
-		} catch let error as NSError {
-			completion(.failure(error))
 		}
 	}
 }

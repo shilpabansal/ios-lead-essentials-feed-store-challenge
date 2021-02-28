@@ -95,10 +95,13 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	private func makeSUT() throws -> CoreDataFeedStore {
-		guard let sut = CoreDataFeedStore() else {
+		do {
+			let sut = try CoreDataFeedStore()
+			return sut
+		}
+		catch {
 			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
 		}
-		return sut
 	}
 	
 	private func setupEmptyStoreState() throws {
