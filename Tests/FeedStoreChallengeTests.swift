@@ -94,7 +94,10 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		fatalError("Must be implemented")
+		guard let sut = CoreDataFeedStore() else {
+			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
+		}
+		return sut
 	}
 	
 }

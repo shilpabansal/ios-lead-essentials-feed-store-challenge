@@ -3,7 +3,7 @@
 //
 
 import XCTest
-@testable import FeedStoreChallenge
+import FeedStoreChallenge
 
 class FeedStoreIntegrationTests: XCTestCase {
 	
@@ -72,7 +72,10 @@ class FeedStoreIntegrationTests: XCTestCase {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		return CoreDataFeedStore()
+		guard let sut = CoreDataFeedStore() else {
+			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
+		}
+		return sut
 	}
 	
 	private func setupEmptyStoreState() throws {
@@ -85,10 +88,10 @@ class FeedStoreIntegrationTests: XCTestCase {
 	
 	func dataCleanup() {
 		do {
-			if let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") {
-					let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: CoreDataFeedStore.modelName)
-					try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
-					try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)
+			if let sut = try makeSUT() as? CoreDataFeedStore {
+				sut.deleteCachedFeed(completion: {deletionError in
+					XCTAssertNil(deletionError, "Feeds are deleted successfully")
+				})
 			}
 		}
 		catch {

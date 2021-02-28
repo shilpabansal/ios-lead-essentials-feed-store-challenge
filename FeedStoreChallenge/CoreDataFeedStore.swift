@@ -9,34 +9,35 @@
 import Foundation
 import CoreData
 
-enum FeedsEntity: String {
+public enum FeedsEntity: String {
 	case Feed
 	case Cache
 }
 
-class CoreDataFeedStore: FeedStore {
+public class CoreDataFeedStore: FeedStore {
 	let coreDataStack: CoreDataStack
 	public static let modelName = "FeedStoreDataModel"
 	
-	init() {
-		if let bundleURL = Bundle(for: Self.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") {
-			coreDataStack = CoreDataStack(storeURL: bundleURL, modelName: CoreDataFeedStore.modelName)
+	public init?() {
+		guard let bundleURL = Bundle(for: Self.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
+			return nil
 		}
-		else {
-			fatalError("Failed to fetch the Datamodel")
-		}
+		
+		coreDataStack = CoreDataStack(storeURL: bundleURL, modelName: CoreDataFeedStore.modelName)
 	}
 	
-	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
+	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		do {
 			try coreDataStack.deleteItems(entityName: FeedsEntity.Cache.rawValue)
+			try coreDataStack.deleteItems(entityName: FeedsEntity.Feed.rawValue)
+			
 			completion(nil)
 		} catch let error as NSError {
 			completion(error)
 		}
 	}
 	
-	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
+	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		guard let managedContext = coreDataStack.managedContext,
 			  let cacheEntity = coreDataStack.entityDescription(entityName: FeedsEntity.Cache.rawValue),
 			let feedEntity = coreDataStack.entityDescription(entityName: FeedsEntity.Feed.rawValue) else { return }
@@ -66,7 +67,7 @@ class CoreDataFeedStore: FeedStore {
 		}
 	}
 	
-	func retrieve(completion: @escaping RetrievalCompletion) {
+	public func retrieve(completion: @escaping RetrievalCompletion) {
 		do {
 			if let cacheData = try coreDataStack.fetchRequest(entityName: FeedsEntity.Cache.rawValue) as? [Cache],
 			   let cacheObject = cacheData.first,

@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-@testable import FeedStoreChallenge
+import FeedStoreChallenge
 
 class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	override func setUpWithError() throws {
@@ -24,78 +24,81 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 
 		assertThatRetrieveDeliversEmptyOnEmptyCache(on: sut)
 	}
 	
 	func test_retrieve_hasNoSideEffectsOnEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatRetrieveHasNoSideEffectsOnEmptyCache(on: sut)
 	}
 	
 	func test_retrieve_deliversFoundValuesOnNonEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
 	}
 	
 	func test_retrieve_hasNoSideEffectsOnNonEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 
 		assertThatRetrieveHasNoSideEffectsOnNonEmptyCache(on: sut)
 	}
 	
 	func test_insert_deliversNoErrorOnEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatInsertDeliversNoErrorOnEmptyCache(on: sut)
 	}
 	
 	func test_insert_deliversNoErrorOnNonEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatInsertDeliversNoErrorOnNonEmptyCache(on: sut)
 	}
 	
 	func test_insert_overridesPreviouslyInsertedCacheValues() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
 	}
 	
 	func test_delete_deliversNoErrorOnEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatInsertDeliversNoErrorOnEmptyCache(on: sut)
 	}
 	
 	func test_delete_hasNoSideEffectsOnEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatDeleteHasNoSideEffectsOnEmptyCache(on: sut)
 	}
 	
 	func test_delete_deliversNoErrorOnNonEmptyCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatDeleteDeliversNoErrorOnNonEmptyCache(on: sut)
 	}
 	
 	func test_delete_emptiesPreviouslyInsertedCache() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatDeleteEmptiesPreviouslyInsertedCache(on: sut)
 	}
 	
 	func test_storeSideEffects_runSerially() throws {
-		let sut = makeSUT()
+		let sut = try makeSUT()
 		
 		assertThatSideEffectsRunSerially(on: sut)
 	}
 	
-	private func makeSUT() -> CoreDataFeedStore {
-		return CoreDataFeedStore()
+	private func makeSUT() throws -> CoreDataFeedStore {
+		guard let sut = CoreDataFeedStore() else {
+			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
+		}
+		return sut
 	}
 	
 	private func setupEmptyStoreState() throws {
@@ -108,16 +111,13 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	
 	func dataCleanup() {
 		do {
-			let modelName = CoreDataFeedStore.modelName
-			if let bundleURL = Bundle(for: type(of: makeSUT()).self).url(forResource: modelName, withExtension: "momd") {
-				let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: modelName)
-				try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
-				try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)
-				
-			}
+			let sut = try makeSUT()
+			sut.deleteCachedFeed(completion: {deletionError in
+				XCTAssertNil(deletionError, "Feeds are deleted successfully")
+			})
 		}
 		catch {
-			fatalError("Unable to delete the data")
+			XCTFail("Unable to delete the data")
 		}
 	}
 }
