@@ -85,9 +85,8 @@ class FeedStoreIntegrationTests: XCTestCase {
 	
 	func dataCleanup() {
 		do {
-			if let sut = try makeSUT() as? CoreDataFeedStore,
-			   let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: sut.modelName, withExtension: "momd") {
-					let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: sut.modelName)
+			if let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") {
+					let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: CoreDataFeedStore.modelName)
 					try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
 					try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)
 			}

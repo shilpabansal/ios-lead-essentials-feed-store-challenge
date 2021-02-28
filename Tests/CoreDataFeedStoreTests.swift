@@ -108,9 +108,8 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 	
 	func dataCleanup() {
 		do {
-			let sut = makeSUT()
-			let modelName = sut.modelName
-			if let bundleURL = Bundle(for: type(of: sut).self).url(forResource: modelName, withExtension: "momd") {
+			let modelName = CoreDataFeedStore.modelName
+			if let bundleURL = Bundle(for: type(of: makeSUT()).self).url(forResource: modelName, withExtension: "momd") {
 				let coreDataInstance = CoreDataStack(storeURL: bundleURL, modelName: modelName)
 				try coreDataInstance.deleteItems(entityName: FeedsEntity.Cache.rawValue)
 				try coreDataInstance.deleteItems(entityName: FeedsEntity.Feed.rawValue)

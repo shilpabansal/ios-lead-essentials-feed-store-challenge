@@ -9,11 +9,11 @@
 import Foundation
 import CoreData
 
-public class CoreDataStack {
+class CoreDataStack {
 	var modelName: String
 	var persistentStoreURL: URL
 	
-	public init(storeURL: URL, modelName: String) {
+	init(storeURL: URL, modelName: String) {
 		persistentStoreURL = storeURL
 		self.modelName = modelName
 	}
@@ -36,7 +36,7 @@ public class CoreDataStack {
 		return persistentContainer?.viewContext
 	}
 	
-	public func deleteItems(entityName: String) throws {
+	func deleteItems(entityName: String) throws {
 		let context = persistentContainer?.viewContext
 		
 		let cacheRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
@@ -64,20 +64,17 @@ public class CoreDataStack {
 		}
 	}
 	
-	public func fetchRequest(entityName: String,
-							 sortDescription: [NSSortDescriptor]? = nil) throws -> [NSManagedObject]? {
+	func fetchRequest(entityName: String) throws -> [NSManagedObject]? {
 		let context = persistentContainer?.viewContext
-		let cacheRequest : NSFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-		cacheRequest.sortDescriptors = sortDescription
-		
+		let cacheRequest : NSFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)		
 		do {
 			return try context?.fetch(cacheRequest) as? [NSManagedObject]
-		} catch let error as NSError {
+		} catch {
 			throw error
 		}
 	}
 	
-	public func entityDescription(entityName: String) -> NSEntityDescription? {
+	func entityDescription(entityName: String) -> NSEntityDescription? {
 		if let context = persistentContainer?.viewContext {
 			return NSEntityDescription.entity(forEntityName: entityName, in: context)
 		}

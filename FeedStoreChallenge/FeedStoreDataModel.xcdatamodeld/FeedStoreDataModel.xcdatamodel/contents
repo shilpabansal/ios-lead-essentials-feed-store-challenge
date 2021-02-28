@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="19H2" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="FeedStoreDataModel">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="19H524" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="FeedStoreDataModel">
     <entity name="Cache" representedClassName="Cache" syncable="YES">
         <attribute name="timeStamp" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="feedsEntered" toMany="YES" deletionRule="Cascade" destinationEntity="Feed" inverseName="timeStamp" inverseEntity="Feed"/>
+        <relationship name="feedsEntered" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Feed" inverseName="cache" inverseEntity="Feed"/>
     </entity>
     <entity name="Feed" representedClassName="Feed" syncable="YES" codeGenerationType="class">
         <attribute name="feed_description" attributeType="String"/>
         <attribute name="feed_id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="feed_location" attributeType="String"/>
         <attribute name="feed_url" attributeType="URI"/>
-        <attribute name="index" attributeType="Decimal" defaultValueString="0.0"/>
-        <relationship name="timeStamp" maxCount="1" deletionRule="No Action" destinationEntity="Cache" inverseName="feedsEntered" inverseEntity="Cache"/>
+        <relationship name="cache" maxCount="1" deletionRule="No Action" destinationEntity="Cache" inverseName="feedsEntered" inverseEntity="Cache"/>
     </entity>
     <elements>
         <element name="Cache" positionX="-63" positionY="9" width="128" height="73"/>
-        <element name="Feed" positionX="204.4453125" positionY="-18" width="128" height="133"/>
+        <element name="Feed" positionX="204.4453125" positionY="-18" width="128" height="118"/>
     </elements>
 </model>
