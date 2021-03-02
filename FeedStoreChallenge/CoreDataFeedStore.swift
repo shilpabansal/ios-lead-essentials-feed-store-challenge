@@ -9,25 +9,26 @@
 import Foundation
 import CoreData
 
-public enum FeedsEntity: String {
-	case ManagedFeedImage
-	case ManagedCache
-}
-
 public class CoreDataFeedStore: FeedStore {
-	let persistentContainer: NSPersistentContainer
-	let managedContext: NSManagedObjectContext
+	private let persistentContainer: NSPersistentContainer
+	private let managedContext: NSManagedObjectContext
 	public static let modelName = "FeedStoreDataModel"
 	
-	public init(bundleURL: URL) throws {
-		guard let managedObjectModel = NSManagedObjectModel(contentsOf: bundleURL) else {
-			throw NSError(domain: "Couldnt find the model", code: 0)
+	public init(storeURL: URL? = nil) throws {
+		let storeBundle = Bundle(for: CoreDataFeedStore.self)
+		
+		guard let model = NSManagedObjectModel.with(name: CoreDataFeedStore.modelName, in: storeBundle) else {
+			throw NSError(domain: "Bundle URL is nil11111", code: 0, userInfo: nil)
 		}
 		
-		persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: managedObjectModel)
+		persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: model)
+		if let storeURL = storeURL {
+			let description = NSPersistentStoreDescription(url: storeURL)
+			persistentContainer.persistentStoreDescriptions = [description]
+		}
 		
-		var loadError: Error?
-		persistentContainer.loadPersistentStores{ loadError = $1 }
+		var loadError: Swift.Error?
+		persistentContainer.loadPersistentStores { loadError = $1 }
 		
 		if let loadError = loadError {
 			throw loadError
@@ -36,13 +37,9 @@ public class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		perform {[weak managedContext] _ in
-			guard let managedContext = managedContext else {
-				completion(NSError(domain: "Instance not found", code: 0))
-				return
-			}
+		perform { context in
 			do {
-				try ManagedCache.find(in: managedContext).map(managedContext.delete).map(managedContext.save)
+				try ManagedCache.find(in: context).map(context.delete).map(context.save)
 				completion(nil)
 			}
 			catch {
@@ -57,16 +54,12 @@ public class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		perform {[weak managedContext] _ in
-			guard let managedContext = managedContext else {
-				completion(NSError(domain: "Instance not found", code: 0))
-				return
-			}
+		perform { context in
 			do {
-				let managedCache = try ManagedCache.uniqueNewInstance(in: managedContext, timestamp: timestamp)
-				managedCache.feedsEntered = ManagedFeedImage.feedImages(from: feed, in: managedContext)
+				let managedCache = try ManagedCache.uniqueNewInstance(in: context, timestamp: timestamp)
+				managedCache.feedsEntered = ManagedFeedImage.feedImages(from: feed, in: context)
 
-				try managedContext.save()
+				try context.save()
 				completion(nil)
 			} catch {
 				completion(error)
@@ -75,13 +68,9 @@ public class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		perform {[weak managedContext] _ in
-			guard let managedContext = managedContext else {
-				completion(.failure(NSError(domain: "Instance not found", code: 0)))
-				return
-			}
+		perform { context in
 			do {
-				if let cache = try ManagedCache.find(in: managedContext) {
+				if let cache = try ManagedCache.find(in: context) {
 					let feedArray = cache.feedsEntered.compactMap { ($0 as? ManagedFeedImage)?.feedImage }
 					completion(.found(feed: feedArray, timestamp: cache.timeStamp))
 				}
@@ -93,5 +82,18 @@ public class CoreDataFeedStore: FeedStore {
 				completion(.failure(error))
 			}
 		}
+	}
+}
+
+extension NSManagedObjectModel {
+	static func with(name: String, in bundle: Bundle) -> NSManagedObjectModel? {
+		return bundle
+			.url(forResource: name, withExtension: "momd")
+			.flatMap { NSManagedObjectModel(contentsOf: $0) }
+	}
+	
+	static func urlWith(name: String, in bundle: Bundle) -> URL? {
+		return bundle
+			.url(forResource: name, withExtension: "momd")
 	}
 }

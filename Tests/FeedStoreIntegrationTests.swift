@@ -3,7 +3,7 @@
 //
 
 import XCTest
-import FeedStoreChallenge
+@testable import FeedStoreChallenge
 
 class FeedStoreIntegrationTests: XCTestCase {
 	
@@ -73,10 +73,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 	
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> FeedStore {
 		do {
-			guard let bundleURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
-				throw NSError(domain: "Bundle URL is nil", code: 0, userInfo: nil)
-			}
-			let sut = try CoreDataFeedStore(bundleURL: bundleURL)
+			let sut = try CoreDataFeedStore()
 			trackMemoryLeak(sut)
 			return sut
 		}
@@ -93,26 +90,15 @@ class FeedStoreIntegrationTests: XCTestCase {
 		dataCleanup()
 	}
 	
-	func dataCleanup() {
-		let url = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd")
-		
-		if let managedObjectModel = url.map({NSManagedObjectModel(contentsOf: $0)}) as? NSManagedObjectModel {
-			let persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: managedObjectModel)
+	private func dataCleanup(file: StaticString = #file, line: UInt = #line) {
+		do {
+			let sut = try CoreDataFeedStore()
+			deleteCache(from: sut)
 			
-			let exp = expectation(description: "Wait for loading")
-			persistentContainer.loadPersistentStores {desc, error  in
-				let context = persistentContainer.newBackgroundContext()
-				context.perform {
-					do {
-						try ManagedCache.find(in: context).map(context.delete).map(context.save)
-					}
-					catch {
-						XCTFail("Unable to delete the data")
-					}
-					exp.fulfill()
-				}
-			}
-			wait(for: [exp], timeout: 1.0)
+			expect(sut, toRetrieve: .empty, file: file, line: line)
+		}
+		catch {
+			XCTFail("Deletion failed")
 		}
 	}
 }
