@@ -14,7 +14,7 @@ public class CoreDataFeedStore: FeedStore {
 	private let managedContext: NSManagedObjectContext
 	public static let modelName = "FeedStoreDataModel"
 	
-	public init(storeURL: URL? = nil) throws {
+	public init(storeURL: URL?) throws {
 		let storeBundle = Bundle(for: CoreDataFeedStore.self)
 		
 		guard let model = NSManagedObjectModel.with(name: CoreDataFeedStore.modelName, in: storeBundle) else {
@@ -22,6 +22,7 @@ public class CoreDataFeedStore: FeedStore {
 		}
 		
 		persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: model)
+		
 		if let storeURL = storeURL {
 			let description = NSPersistentStoreDescription(url: storeURL)
 			persistentContainer.persistentStoreDescriptions = [description]

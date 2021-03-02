@@ -90,11 +90,13 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 		assertThatSideEffectsRunSerially(on: sut)
 	}
 	
+	private func testSpecificURL() -> URL? {
+		return URL(fileURLWithPath: "/dev/null")
+	}
+	
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> CoreDataFeedStore {
-		do {
-			let storeURL = URL(fileURLWithPath: "/dev/null")
-			
-			let sut = try CoreDataFeedStore(storeURL: storeURL)
+		do {			
+			let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
 			trackMemoryLeak(sut, file: file, line: line)
 			return sut
 		}

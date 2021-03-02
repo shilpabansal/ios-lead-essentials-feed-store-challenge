@@ -73,7 +73,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 	
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> FeedStore {
 		do {
-			let sut = try CoreDataFeedStore()
+			let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
 			trackMemoryLeak(sut, file: file, line: line)
 			return sut
 		}
@@ -90,9 +90,14 @@ class FeedStoreIntegrationTests: XCTestCase {
 		dataCleanup()
 	}
 	
+	private func testSpecificURL() -> URL? {
+		let storeDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+		return storeDirectory.appendingPathComponent("FeedStoreDataModel.sqlite")
+	}
+	
 	private func dataCleanup(file: StaticString = #file, line: UInt = #line) {
 		do {
-			let sut = try CoreDataFeedStore()
+			let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
 			deleteCache(from: sut)
 			
 			expect(sut, toRetrieve: .empty, file: file, line: line)
