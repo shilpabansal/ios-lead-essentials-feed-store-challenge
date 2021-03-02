@@ -74,7 +74,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> FeedStore {
 		do {
 			let sut = try CoreDataFeedStore()
-			trackMemoryLeak(sut)
+			trackMemoryLeak(sut, file: file, line: line)
 			return sut
 		}
 		catch {
