@@ -70,40 +70,26 @@ class FeedStoreIntegrationTests: XCTestCase {
 	}
 	
 	// - MARK: Helpers
-	
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> FeedStore {
-		do {
-			let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
-			trackMemoryLeak(sut, file: file, line: line)
-			return sut
-		}
-		catch {
-			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
-		}
+		let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
+		trackMemoryLeak(sut, file: file, line: line)
+		return sut
 	}
 	
 	private func setupEmptyStoreState() throws {
-		dataCleanup()
+		try dataCleanup()
 	}
 	
 	private func undoStoreSideEffects() throws {
-		dataCleanup()
+		try dataCleanup()
 	}
 	
-	private func testSpecificURL() -> URL? {
+	private func testSpecificURL() -> URL {
 		let storeDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
 		return storeDirectory.appendingPathComponent("FeedStoreDataModel.sqlite")
 	}
 	
-	private func dataCleanup(file: StaticString = #file, line: UInt = #line) {
-		do {
-			let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
-			deleteCache(from: sut)
-			
-			expect(sut, toRetrieve: .empty, file: file, line: line)
-		}
-		catch {
-			XCTFail("Deletion failed")
-		}
+	private func dataCleanup(file: StaticString = #file, line: UInt = #line) throws {
+		deleteCache(from: try CoreDataFeedStore(storeURL: testSpecificURL()))
 	}
 }

@@ -12,28 +12,18 @@ import CoreData
 public class CoreDataFeedStore: FeedStore {
 	private let persistentContainer: NSPersistentContainer
 	private let managedContext: NSManagedObjectContext
-	public static let modelName = "FeedStoreDataModel"
+	private let modelName = "FeedStoreDataModel"
 	
-	public init(storeURL: URL?) throws {
+	public init(storeURL: URL) throws {
 		let storeBundle = Bundle(for: CoreDataFeedStore.self)
 		
-		guard let model = NSManagedObjectModel.with(name: CoreDataFeedStore.modelName, in: storeBundle) else {
-			throw NSError(domain: "Bundle URL is nil11111", code: 0, userInfo: nil)
+		guard let model = NSManagedObjectModel.with(name: modelName, in: storeBundle) else {
+			throw NSError(domain: "Couldn't find the object model in Bundle", code: 0, userInfo: nil)
 		}
 		
-		persistentContainer = NSPersistentContainer(name: CoreDataFeedStore.modelName, managedObjectModel: model)
+		persistentContainer = NSPersistentContainer(name: modelName, managedObjectModel: model)
 		
-		if let storeURL = storeURL {
-			let description = NSPersistentStoreDescription(url: storeURL)
-			persistentContainer.persistentStoreDescriptions = [description]
-		}
-		
-		var loadError: Swift.Error?
-		persistentContainer.loadPersistentStores { loadError = $1 }
-		
-		if let loadError = loadError {
-			throw loadError
-		}
+		try persistentContainer.load(storeURL: storeURL)
 		managedContext = persistentContainer.newBackgroundContext()
 	}
 	
@@ -96,5 +86,19 @@ extension NSManagedObjectModel {
 	static func urlWith(name: String, in bundle: Bundle) -> URL? {
 		return bundle
 			.url(forResource: name, withExtension: "momd")
+	}
+}
+
+extension NSPersistentContainer {
+	func load(storeURL: URL) throws {
+		let description = NSPersistentStoreDescription(url: storeURL)
+		self.persistentStoreDescriptions = [description]
+		
+		var loadError: Swift.Error?
+		loadPersistentStores { loadError = $1 }
+		
+		if let loadError = loadError {
+			throw loadError
+		}
 	}
 }

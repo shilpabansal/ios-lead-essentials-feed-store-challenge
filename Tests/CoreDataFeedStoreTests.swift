@@ -8,17 +8,9 @@
 
 import Foundation
 import XCTest
-@testable import FeedStoreChallenge
+import FeedStoreChallenge
 
 class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
-	override func setUp() {
-		super.setUp()
-	}
-	
-	override func tearDown() {
-		super.tearDown()
-	}
-	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
 		let sut = try makeSUT()
 
@@ -90,20 +82,13 @@ class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
 		assertThatSideEffectsRunSerially(on: sut)
 	}
 	
-	private func testSpecificURL() -> URL? {
+	private func testSpecificURL() -> URL {
 		return URL(fileURLWithPath: "/dev/null")
 	}
 	
 	private func makeSUT(file: StaticString = #file, line: UInt = #line) throws -> CoreDataFeedStore {
-		do {			
-			let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
-			trackMemoryLeak(sut, file: file, line: line)
-			return sut
-		}
-		catch {
-			throw NSError(domain: "Unable to create instance", code: 0, userInfo: nil)
-		}
+		let sut = try CoreDataFeedStore(storeURL: testSpecificURL())
+		trackMemoryLeak(sut, file: file, line: line)
+		return sut
 	}
 }
-
-
