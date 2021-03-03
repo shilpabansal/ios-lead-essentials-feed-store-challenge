@@ -12,9 +12,9 @@ import CoreData
 public class CoreDataFeedStore: FeedStore {
 	private let persistentContainer: NSPersistentContainer
 	private let managedContext: NSManagedObjectContext
-	private let modelName = "FeedStoreDataModel"
 	
 	public init(storeURL: URL) throws {
+		let modelName = "FeedStoreDataModel"
 		let storeBundle = Bundle(for: CoreDataFeedStore.self)
 		
 		guard let model = NSManagedObjectModel.with(name: modelName, in: storeBundle) else {

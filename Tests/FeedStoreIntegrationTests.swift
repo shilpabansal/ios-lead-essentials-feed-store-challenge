@@ -89,7 +89,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 		return storeDirectory.appendingPathComponent("FeedStoreDataModel.sqlite")
 	}
 	
-	private func dataCleanup(file: StaticString = #file, line: UInt = #line) throws {
+	private func dataCleanup() throws {
 		deleteCache(from: try CoreDataFeedStore(storeURL: testSpecificURL()))
 	}
 }
